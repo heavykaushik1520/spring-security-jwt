@@ -11,18 +11,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.security.model.User;
 
 public class UserInfoDetails implements UserDetails {
-	
+
 	private String username;
 	private String password;
 	private List<GrantedAuthority> authorities;
-	
-	
+
 	public UserInfoDetails(User user) {
-		this.username = user.getName();
+//		this.username = user.getName();
+		this.username = user.getEmail();
 		this.password = user.getPassword();
-		this.authorities = List.of(user.getRoles().split(","))
-				.stream()
-				.map(SimpleGrantedAuthority::new)
+		this.authorities = List.of(user.getRoles().split(",")).stream().map(SimpleGrantedAuthority::new)
 				.collect(Collectors.toList());
 	}
 
@@ -43,25 +41,25 @@ public class UserInfoDetails implements UserDetails {
 		// TODO Auto-generated method stub
 		return username;
 	}
-	
+
 	@Override
 	public boolean isAccountNonExpired() {
 		return true;
 	}
-	
+
 	@Override
-    public boolean isAccountNonLocked() {
-        return true; // Implement your logic if you need this
-    }
+	public boolean isAccountNonLocked() {
+		return true; // Implement your logic if you need this
+	}
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true; // Implement your logic if you need this
-    }
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true; // Implement your logic if you need this
+	}
 
-    @Override
-    public boolean isEnabled() {
-        return true; // Implement your logic if you need this
-    }
+	@Override
+	public boolean isEnabled() {
+		return true; // Implement your logic if you need this
+	}
 
 }
