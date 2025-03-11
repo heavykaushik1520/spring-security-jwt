@@ -1,5 +1,13 @@
 package com.security.config;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.context.annotation.Bean;
@@ -36,11 +44,13 @@ public class SecurityConfig {
 		return new UserService();
 	}
 
+	
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth
+		http.csrf(csrf -> csrf.disable())
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))				.authorizeHttpRequests(auth -> auth
 //                        .requestMatchers("/auth/welcome", "/auth/addNewUser", "/auth/generateToken").permitAll()
-				.requestMatchers(HttpMethod.POST, "/auth/generateToken").permitAll()
+				.requestMatchers(HttpMethod.POST, "/auth/generateToken","/auth/logout").permitAll()
 				.requestMatchers("/auth/welcome", "/auth/addNewUser").permitAll()
 				.requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
 				.requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
@@ -51,6 +61,19 @@ public class SecurityConfig {
 
 		return http.build();
 	}
+	
+	 @Bean
+	    public CorsConfigurationSource corsConfigurationSource() {
+	        CorsConfiguration configuration = new CorsConfiguration();
+	        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Frontend URL
+	        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+	        configuration.setAllowedHeaders(List.of("*"));
+	        configuration.setAllowCredentials(true);  // Important for authentication headers
+
+	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	        source.registerCorsConfiguration("/**", configuration);
+	        return source;
+	    }
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {

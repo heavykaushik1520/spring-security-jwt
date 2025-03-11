@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.security.service.JwtService;
+import com.security.service.TokenBlacklistService;
 import com.security.service.UserService;
 
 import jakarta.servlet.FilterChain;
@@ -28,6 +29,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private TokenBlacklistService tokenBlacklistService;
 
 
 	@Override
@@ -41,6 +45,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
 			token = authHeader.substring(7);
 			username = jwtService.extractUsername(token);
+			
+			// Check if token is blacklisted
+            if (tokenBlacklistService.isTokenBlacklisted(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token has been logged out!");
+                return; // Block the request
+            }
 		}
 		
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
